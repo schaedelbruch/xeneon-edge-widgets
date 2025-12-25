@@ -10,11 +10,11 @@
     <header class="main-header">
         <div class="brand" onclick="switchView('main')">XENEON // TARKOV_OS</div>
         <select id="view-selector" onchange="switchView(this.value)">
-            <option value="main">ÜBERSICHT (GRID)</option>
-            <option value="status">SERVER & ZEIT DETAILS</option>
-            <option value="market">PVE MARKT DETAILS</option>
-            <option value="barter">BARTER SNIPER DETAILS</option>
-            <option value="traders">ALLE TRADER DETAILS</option>
+            <option value="main">OVERVIEW (GRID)</option>
+            <option value="status">SERVER & IN-GAME TIME</option>
+            <option value="market">PVE MARKET</option>
+            <option value="barter">BARTER SNIPER</option>
+            <option value="traders">TRADER</option>
         </select>
     </header>
 
@@ -37,6 +37,15 @@
                     <h3 class="widget-title">ALL_TRADERS</h3>
                     <div id="trader-summary" class="scroll-content"></div>
                 </section>
+            </div>
+        </div>
+
+        <div id="detail-view" class="view" style="display: none;">
+            <div class="detail-container">
+                <div class="detail-header">
+                    <h2 id="detail-title">DETAIL_VIEW</h2>
+                </div>
+                <div id="detail-content" class="scroll-content"></div>
             </div>
         </div>
     </main>
