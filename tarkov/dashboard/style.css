@@ -14,6 +14,13 @@
     --red: #f87171;
 }
 
+/* --- Animationen --- */
+@keyframes status-pulse {
+    0% { opacity: 1; box-shadow: 0 0 5px currentColor; }
+    50% { opacity: 0.6; box-shadow: 0 0 15px currentColor; }
+    100% { opacity: 1; box-shadow: 0 0 5px currentColor; }
+}
+
 * { box-sizing: border-box; }
 
 body {
@@ -40,18 +47,16 @@ body {
     flex-shrink: 0;
 }
 
+.brand { cursor: pointer; font-size: 1.2rem; font-weight: bold; color: var(--tarkov-yellow); }
+
 #view-container {
     flex-grow: 1;
     overflow: hidden;
     position: relative;
 }
 
-.view {
-    height: 100%;
-    width: 100%;
-}
+.view { height: 100%; width: 100%; }
 
-/* Grid Layout */
 .grid-layout {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -69,7 +74,10 @@ body {
     height: 100%;
     min-height: 0;
     cursor: pointer;
+    transition: border-color 0.2s;
 }
+
+.widget:hover { border-color: var(--tarkov-yellow); }
 
 .widget-title {
     color: var(--tarkov-yellow);
@@ -80,24 +88,56 @@ body {
     flex-shrink: 0;
 }
 
-/* Scroll-Logik */
-.scroll-content {
-    overflow-y: auto;
-    flex-grow: 1;
-    min-height: 0; /* Verpflichtend für Flexbox-Scrolling */
+.scroll-content { overflow-y: auto; flex-grow: 1; min-height: 0; }
+
+/* --- Status Styles --- */
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.2);
+    margin-bottom: 4px;
 }
 
-/* Detailansicht: MAXIMALE BREITE */
-#detail-view {
-    display: none; /* Wird via JS auf 'flex' gesetzt */
-    flex-direction: column;
-    padding: 15px;
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
 }
+
+.status-ok { background-color: var(--green); color: var(--green); animation: status-pulse 2s infinite; }
+.status-err { background-color: var(--red); color: var(--red); animation: status-pulse 1s infinite; }
+
+/* --- Dropdown Styles --- */
+#view-selector {
+    background-color: #000;
+    color: var(--tarkov-yellow);
+    border: 1px solid var(--tarkov-border);
+    padding: 8px 15px;
+    font-family: 'Bender';
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+    text-transform: uppercase;
+}
+
+#view-selector:hover {
+    border-color: var(--tarkov-yellow);
+    box-shadow: 0 0 10px rgba(255, 180, 0, 0.2);
+}
+
+#view-selector option { background-color: #121212; color: var(--tarkov-text); }
+
+/* --- Detail View --- */
+#detail-view { flex-direction: column; padding: 15px; }
 
 .detail-container {
     background: var(--tarkov-card);
     border: 1px solid var(--tarkov-yellow);
-    width: 100%; /* Volle Breite */
+    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -119,7 +159,6 @@ body {
     border: 1px solid var(--tarkov-border);
     margin-bottom: 15px;
     padding: 15px;
-    width: 100%; /* Karte nutzt volle Breite des Containers */
 }
 
 .detail-card-header {
@@ -150,7 +189,7 @@ body {
     margin-bottom: 4px;
 }
 
-#refresh-btn, #view-selector, .back-btn {
+#refresh-btn, .back-btn {
     background: transparent;
     color: var(--tarkov-yellow);
     border: 1px solid var(--tarkov-yellow);

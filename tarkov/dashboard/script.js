@@ -71,12 +71,21 @@ function calculateProfits(type) {
 function renderStatusSummary() {
     const container = document.getElementById('status-summary');
     if (!container || !tarkovData.status) return;
-    container.innerHTML = tarkovData.status.currentStatuses.map(s => `
-        <div class="status-item">
-            <span style="color:var(--tarkov-dim); font-size:0.8rem">${s.name.toUpperCase()}</span>
-            <span style="color:${s.status === 0 ? 'var(--green)' : 'var(--red)'}">${s.status === 0 ? 'OK' : 'ERR'}</span>
-        </div>
-    `).join('');
+    
+    container.innerHTML = tarkovData.status.currentStatuses.map(s => {
+        const statusClass = s.status === 0 ? 'status-ok' : 'status-err';
+        const statusLabel = s.status === 0 ? 'OPERATIONAL' : 'ERROR';
+        
+        return `
+            <div class="status-item">
+                <div style="display:flex; flex-direction:column;">
+                    <span style="color:var(--tarkov-dim); font-size:0.7rem; letter-spacing:1px;">${s.name.toUpperCase()}</span>
+                    <span style="font-size:0.9rem; color:var(--tarkov-text)">${statusLabel}</span>
+                </div>
+                <div class="status-indicator ${statusClass}"></div>
+            </div>
+        `;
+    }).join('');
 }
 
 function renderCraftSummary() {
@@ -118,7 +127,26 @@ function renderTraderSummary() {
 
 function renderDetails(viewId) {
     const container = document.getElementById('detail-content');
-    if (viewId === 'craft' || viewId === 'barter') {
+    
+    if (viewId === 'status') {
+        container.innerHTML = `
+            <div style="padding:20px; border:1px solid var(--tarkov-border); background:rgba(0,0,0,0.3);">
+                <h3 style="color:var(--tarkov-yellow); margin-top:0;">SYSTEM_DIAGNOSTICS_REPORT</h3>
+                ${tarkovData.status.currentStatuses.map(s => `
+                    <div style="margin-bottom:20px; padding-bottom:10px; border-bottom:1px solid #222;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="font-size:1.2rem;">${s.name}</strong>
+                            <span class="status-indicator ${s.status === 0 ? 'status-ok' : 'status-err'}"></span>
+                        </div>
+                        <p style="color:${s.status === 0 ? 'var(--green)' : 'var(--red)'}; margin:5px 0;">
+                            STATUS: ${s.status === 0 ? 'ONLINE' : 'OFFLINE'}
+                        </p>
+                        ${s.message ? `<small style="color:var(--tarkov-dim)">LOG: ${s.message}</small>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } else if (viewId === 'craft' || viewId === 'barter') {
         const profits = calculateProfits(viewId);
         container.innerHTML = profits.slice(0, 20).map(item => `
             <div class="detail-card">
@@ -153,7 +181,6 @@ function switchView(viewId) {
     const selector = document.getElementById('view-selector');
     
     mainView.style.display = viewId === 'main' ? 'block' : 'none';
-    // Wichtig: Detailansicht nutzt flex für die Scroll-Eigenschaften
     detailView.style.display = viewId === 'main' ? 'none' : 'flex';
     selector.value = viewId;
 
