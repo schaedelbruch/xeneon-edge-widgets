@@ -10,13 +10,13 @@
     <div class="overlay-scanlines"></div>
     
     <header class="main-header">
-        <div class="brand">XENEON // TARKOV_OS</div>
+        <div class="brand" onclick="switchView('main')" style="cursor:pointer">XENEON // TARKOV_OS</div>
         <select id="view-selector" onchange="switchView(this.value)">
             <option value="main">ÜBERSICHT</option>
-            <option value="status">TRADER & STATUS</option>
-            <option value="market">MARKT PREISE</option>
-            <option value="ammo">MUNITION</option>
+            <option value="status">SERVER & ZEIT</option>
+            <option value="market">PVE MARKT</option>
             <option value="barter">BARTER SNIPER</option>
+            <option value="traders">ALLE TRADER</option>
         </select>
     </header>
 
@@ -24,28 +24,27 @@
         <div id="main-view" class="view active">
             <div class="grid-layout">
                 <section class="widget" onclick="switchView('status')">
-                    <h3 class="widget-title">STATUS</h3>
+                    <h3 class="widget-title">OS_STATUS & CLOCK</h3>
                     <div id="status-summary"></div>
                 </section>
                 <section class="widget" onclick="switchView('market')">
-                    <h3 class="widget-title">MARKET</h3>
+                    <h3 class="widget-title">PVE_MARKET</h3>
                     <div id="market-summary"></div>
                 </section>
-                <section class="widget" onclick="switchView('ammo')">
-                    <h3 class="widget-title">AMMO</h3>
-                    <div id="ammo-summary"></div>
-                </section>
                 <section class="widget" onclick="switchView('barter')">
-                    <h3 class="widget-title">BARTER</h3>
+                    <h3 class="widget-title">BARTER_SNIPER</h3>
                     <div id="barter-summary"></div>
+                </section>
+                <section class="widget" onclick="switchView('traders')">
+                    <h3 class="widget-title">ALL_TRADERS</h3>
+                    <div id="trader-summary" class="scroll-mini"></div>
                 </section>
             </div>
         </div>
 
         <div id="detail-view" class="view">
             <h2 id="detail-title">DETAILS</h2>
-            <div id="detail-content" class="scroll-container">
-                </div>
+            <div id="detail-content" class="scroll-container"></div>
         </div>
     </main>
 
