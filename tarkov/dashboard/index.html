@@ -7,16 +7,14 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="overlay-scanlines"></div>
-    
     <header class="main-header">
-        <div class="brand" onclick="switchView('main')" style="cursor:pointer">XENEON // TARKOV_OS</div>
+        <div class="brand" onclick="switchView('main')">XENEON // TARKOV_OS</div>
         <select id="view-selector" onchange="switchView(this.value)">
-            <option value="main">ÜBERSICHT</option>
-            <option value="status">SERVER & ZEIT</option>
-            <option value="market">PVE MARKT</option>
-            <option value="barter">BARTER SNIPER</option>
-            <option value="traders">ALLE TRADER</option>
+            <option value="main">ÜBERSICHT (GRID)</option>
+            <option value="status">SERVER & ZEIT DETAILS</option>
+            <option value="market">PVE MARKT DETAILS</option>
+            <option value="barter">BARTER SNIPER DETAILS</option>
+            <option value="traders">ALLE TRADER DETAILS</option>
         </select>
     </header>
 
@@ -25,26 +23,29 @@
             <div class="grid-layout">
                 <section class="widget" onclick="switchView('status')">
                     <h3 class="widget-title">OS_STATUS & CLOCK</h3>
-                    <div id="status-summary"></div>
+                    <div id="status-summary" class="scroll-content"></div>
                 </section>
                 <section class="widget" onclick="switchView('market')">
                     <h3 class="widget-title">PVE_MARKET</h3>
-                    <div id="market-summary"></div>
+                    <div id="market-summary" class="scroll-content"></div>
                 </section>
                 <section class="widget" onclick="switchView('barter')">
                     <h3 class="widget-title">BARTER_SNIPER</h3>
-                    <div id="barter-summary"></div>
+                    <div id="barter-summary" class="scroll-content"></div>
                 </section>
                 <section class="widget" onclick="switchView('traders')">
                     <h3 class="widget-title">ALL_TRADERS</h3>
-                    <div id="trader-summary" class="scroll-mini"></div>
+                    <div id="trader-summary" class="scroll-content"></div>
                 </section>
             </div>
         </div>
 
         <div id="detail-view" class="view">
-            <h2 id="detail-title">DETAILS</h2>
-            <div id="detail-content" class="scroll-container"></div>
+            <div class="detail-header">
+                <button onclick="switchView('main')" class="back-btn"> Zurück zur Übersicht</button>
+                <h2 id="detail-title">DETAILS</h2>
+            </div>
+            <div id="detail-content" class="scroll-container-detail"></div>
         </div>
     </main>
 
