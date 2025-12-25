@@ -1,15 +1,9 @@
 const API_URL = 'https://api.tarkov.dev/graphql';
-
-let tarkovData = {
-    status: null,
-    traders: [],
-    crafts: [],
-    barters: []
-};
+let tarkovData = { status: null, traders: [], crafts: [], barters: [] };
 
 async function init() {
     await fetchAllData();
-    setInterval(fetchAllData, 60000); 
+    setInterval(fetchAllData, 60000);
     setInterval(updateDynamicElements, 1000);
 }
 
@@ -21,6 +15,7 @@ async function manualRefresh() {
 }
 
 async function fetchAllData() {
+    // Abfrage inklusive Level für Crafts und Barters
     const query = `{
         status { currentStatuses { name status message } }
         traders { name resetTime }
@@ -57,25 +52,6 @@ function renderAll() {
     renderTraderSummary();
 }
 
-function renderStatusSummary() {
-    const container = document.getElementById('status-summary');
-    if (!container || !tarkovData.status) return;
-    const statuses = tarkovData.status.currentStatuses;
-    const hasIssue = statuses.some(s => s.status !== 0);
-
-    container.innerHTML = `
-        <div class="status-indicator" style="color:${hasIssue ? 'var(--red)' : 'var(--green)'}">
-            SYSTEM: ${hasIssue ? 'ISSUES' : 'OPERATIONAL'}
-        </div>
-        ${statuses.map(s => `
-            <div class="status-item">
-                <span style="color:var(--tarkov-dim)">${s.name.toUpperCase()}</span>
-                <span style="color:${s.status === 0 ? 'var(--green)' : 'var(--red)'}">${s.status === 0 ? 'OK' : 'ERR'}</span>
-            </div>
-        `).join('')}
-    `;
-}
-
 function calculateProfits(type) {
     const list = type === 'craft' ? tarkovData.crafts : tarkovData.barters;
     return list.map(item => {
@@ -93,17 +69,26 @@ function calculateProfits(type) {
     }).filter(i => i && i.profit > 5000).sort((a,b) => b.profit - a.profit);
 }
 
+function renderStatusSummary() {
+    const container = document.getElementById('status-summary');
+    if (!container || !tarkovData.status) return;
+    container.innerHTML = tarkovData.status.currentStatuses.map(s => `
+        <div class="status-item">
+            <span style="color:var(--tarkov-dim)">${s.name.toUpperCase()}</span>
+            <span style="color:${s.status === 0 ? 'var(--green)' : 'var(--red)'}">${s.status === 0 ? 'OK' : 'ERR'}</span>
+        </div>
+    `).join('');
+}
+
 function renderCraftSummary() {
     const container = document.getElementById('craft-summary');
-    if (!container) return;
     const profits = calculateProfits('craft');
-    // Geändert auf die 20 besten Crafts
     container.innerHTML = profits.slice(0, 20).map(c => `
         <div class="card">
             <img src="${c.icon}">
             <div style="flex-grow:1; display:flex; flex-direction:column;">
                 <span style="font-size:0.85rem">${c.name}</span>
-                <small style="color:var(--tarkov-dim)">${c.location}</small>
+                <small style="color:var(--tarkov-dim)">${c.location} LVL ${c.level}</small>
             </div>
             <span style="color:var(--green); font-weight:bold;">+${Math.round(c.profit/1000)}k</span>
         </div>
@@ -112,15 +97,13 @@ function renderCraftSummary() {
 
 function renderBarterSummary() {
     const container = document.getElementById('barter-summary');
-    if (!container) return;
     const profits = calculateProfits('barter');
-    // Geändert auf die 20 besten Barter
     container.innerHTML = profits.slice(0, 20).map(b => `
         <div class="card">
             <img src="${b.icon}">
             <div style="flex-grow:1; display:flex; flex-direction:column;">
                 <span style="font-size:0.85rem">${b.name}</span>
-                <small style="color:var(--tarkov-dim)">${b.location}</small>
+                <small style="color:var(--tarkov-dim)">${b.location} LVL ${b.level}</small>
             </div>
             <span style="color:var(--green)">+${Math.round(b.profit/1000)}k</span>
         </div>
@@ -129,7 +112,6 @@ function renderBarterSummary() {
 
 function renderTraderSummary() {
     const container = document.getElementById('trader-summary');
-    if (!container) return;
     container.innerHTML = tarkovData.traders.map(t => `
         <div class="card">
             <span style="font-size:0.9rem">${t.name}</span>
@@ -138,15 +120,46 @@ function renderTraderSummary() {
     `).join('');
 }
 
+function renderDetails(viewId) {
+    const container = document.getElementById('detail-content');
+    if (viewId === 'craft' || viewId === 'barter') {
+        const profits = calculateProfits(viewId);
+        container.innerHTML = profits.slice(0, 20).map(item => `
+            <div class="detail-card">
+                <div class="detail-card-header">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="${item.icon}" width="40">
+                        <div>
+                            <strong>${item.name}</strong><br>
+                            <small style="color:var(--tarkov-yellow)">${item.location} (LEVEL ${item.level})</small>
+                        </div>
+                    </div>
+                    <div style="color:var(--green); font-weight:bold;">+${item.profit.toLocaleString()} ₽</div>
+                </div>
+                <div class="req-item-list">
+                    <strong>REQUIREMENTS:</strong>
+                    ${item.requiredItems.map(ri => `
+                        <div style="display:flex; justify-content:space-between; margin-top:3px;">
+                            <span>${ri.count}x ${ri.item.name}</span>
+                            <span>${((ri.item.lastLowPrice || 0) * ri.count).toLocaleString()} ₽</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+    } else {
+        container.innerHTML = document.getElementById(viewId + '-summary').innerHTML;
+    }
+}
+
 function switchView(viewId) {
     const mainView = document.getElementById('main-view');
     const detailView = document.getElementById('detail-view');
     mainView.style.display = viewId === 'main' ? 'block' : 'none';
     detailView.style.display = viewId === 'main' ? 'none' : 'block';
-    
     if (viewId !== 'main') {
-        const content = document.getElementById(viewId + '-summary').innerHTML;
-        document.getElementById('detail-content').innerHTML = content;
+        document.getElementById('detail-title').innerText = viewId.toUpperCase() + "_ANALYSIS";
+        renderDetails(viewId);
     }
 }
 
