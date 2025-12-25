@@ -1,40 +1,45 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tarkov Edge OS</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <header class="main-header">
         <div class="brand" onclick="switchView('main')">XENEON // TARKOV_OS</div>
-        <select id="view-selector" onchange="switchView(this.value)">
-            <option value="main">OVERVIEW (GRID)</option>
-            <option value="status">SERVER & IN-GAME TIME</option>
-            <option value="market">PVE MARKET</option>
-            <option value="barter">BARTER SNIPER</option>
-            <option value="traders">TRADER</option>
-        </select>
+        <div class="header-controls">
+            <button id="refresh-btn" onclick="manualRefresh()">REFRESH_SYSTEM</button>
+            <select id="view-selector" onchange="switchView(this.value)">
+                <option value="main">OVERVIEW (GRID)</option>
+                <option value="status">SERVER_STATUS</option>
+                <option value="craft">HIDEOUT_CRAFTS</option>
+                <option value="barter">BARTER_SNIPER</option>
+                <option value="traders">TRADER_RESETS</option>
+            </select>
+        </div>
     </header>
 
     <main id="view-container">
         <div id="main-view" class="view active">
             <div class="grid-layout">
                 <section class="widget" onclick="switchView('status')">
-                    <h3 class="widget-title">OS_STATUS & CLOCK</h3>
+                    <h3 class="widget-title">OS_SERVER_STATUS</h3>
                     <div id="status-summary" class="scroll-content"></div>
                 </section>
-                <section class="widget" onclick="switchView('market')">
-                    <h3 class="widget-title">PVE_MARKET</h3>
-                    <div id="market-summary" class="scroll-content"></div>
+                <section class="widget" onclick="switchView('craft')">
+                    <h3 class="widget-title">HIDEOUT_CRAFTS</h3>
+                    <div id="craft-summary" class="scroll-content"></div>
                 </section>
                 <section class="widget" onclick="switchView('barter')">
                     <h3 class="widget-title">BARTER_SNIPER</h3>
                     <div id="barter-summary" class="scroll-content"></div>
                 </section>
                 <section class="widget" onclick="switchView('traders')">
-                    <h3 class="widget-title">ALL_TRADERS</h3>
+                    <h3 class="widget-title">TRADER_RESETS</h3>
                     <div id="trader-summary" class="scroll-content"></div>
                 </section>
             </div>
@@ -43,7 +48,7 @@
         <div id="detail-view" class="view" style="display: none;">
             <div class="detail-container">
                 <div class="detail-header">
-                    <h2 id="detail-title">DETAIL_VIEW</h2>
+                    <h2 id="detail-title">ANALYSIS_VIEW</h2>
                 </div>
                 <div id="detail-content" class="scroll-content"></div>
             </div>
@@ -52,4 +57,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>

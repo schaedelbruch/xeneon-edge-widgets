@@ -3,15 +3,9 @@ const API_URL = 'https://api.tarkov.dev/graphql';
 let tarkovData = {
     status: null,
     traders: [],
-    marketItems: [],
+    crafts: [],
     barters: []
 };
-
-const MARKET_ITEM_NAMES = [
-    "Graphics card", "Physical bitcoin", "LedX Skin Transilluminator", 
-    "Intelligence folder", "Defibrillator", "Bottle of Fierce Hatchling moonshine",
-    "Propital", "Golden Star balm", "Military power filter"
-];
 
 async function init() {
     await fetchAllData();
@@ -19,24 +13,28 @@ async function init() {
     setInterval(updateDynamicElements, 1000);
 }
 
+async function manualRefresh() {
+    const btn = document.getElementById('refresh-btn');
+    btn.innerText = "REFRESHING...";
+    await fetchAllData();
+    btn.innerText = "REFRESH_SYSTEM";
+}
+
 async function fetchAllData() {
     const query = `{
-        status { currentStatuses { status } }
+        status { currentStatuses { name status message } }
         traders { name resetTime }
-        marketItems: items(gameMode: pve, names: ${JSON.stringify(MARKET_ITEM_NAMES)}) {
-            name lastLowPrice avg24hPrice iconLink
+        crafts(gameMode: pve) {
+            station { name }
+            level
+            rewardItems { item { name lastLowPrice iconLink } count }
+            requiredItems { item { name lastLowPrice iconLink } count }
         }
         barters(gameMode: pve) {
             trader { name }
             level
-            rewardItems { 
-                item { name lastLowPrice iconLink } 
-                count 
-            }
-            requiredItems { 
-                item { name lastLowPrice iconLink } 
-                count 
-            }
+            rewardItems { item { name lastLowPrice iconLink } count }
+            requiredItems { item { name lastLowPrice iconLink } count }
         }
     }`;
 
@@ -48,77 +46,82 @@ async function fetchAllData() {
         });
         const result = await response.json();
         tarkovData = result.data;
-        
         renderAll();
-
-        const selector = document.getElementById('view-selector');
-        if (selector.value !== 'main') renderDetails(selector.value);
-        
     } catch (e) { console.error("API Error", e); }
 }
 
 function renderAll() {
     renderStatusSummary();
-    renderMarketSummary();
+    renderCraftSummary();
     renderBarterSummary();
     renderTraderSummary();
 }
 
 function renderStatusSummary() {
     const container = document.getElementById('status-summary');
-    if (!container) return;
-    const isOnline = tarkovData.status?.currentStatuses[0]?.status === 0;
+    if (!container || !tarkovData.status) return;
+    const statuses = tarkovData.status.currentStatuses;
+    const hasIssue = statuses.some(s => s.status !== 0);
+
     container.innerHTML = `
-        <div class="status-indicator" style="color:${isOnline ? 'var(--green)' : 'var(--red)'}; border: 1px solid ${isOnline ? 'var(--green)' : 'var(--red)'}">
-            SERVER: ${isOnline ? 'ONLINE' : 'ISSUES'}
+        <div class="status-indicator" style="color:${hasIssue ? 'var(--red)' : 'var(--green)'}">
+            SYSTEM: ${hasIssue ? 'ISSUES' : 'OPERATIONAL'}
         </div>
-        <div id="clock-1" class="tarkov-clock">--:--:--</div>
-        <div id="clock-2" class="tarkov-clock">--:--:--</div>
+        ${statuses.map(s => `
+            <div class="status-item">
+                <span style="color:var(--tarkov-dim)">${s.name.toUpperCase()}</span>
+                <span style="color:${s.status === 0 ? 'var(--green)' : 'var(--red)'}">${s.status === 0 ? 'OK' : 'ERR'}</span>
+            </div>
+        `).join('')}
     `;
 }
 
-function renderMarketSummary() {
-    const container = document.getElementById('market-summary');
-    if (!container) return;
-    
-    container.innerHTML = tarkovData.marketItems.map(item => {
-        const isCheaper = item.lastLowPrice < item.avg24hPrice;
-        const trendIcon = isCheaper ? '▼' : '▲';
-        const trendColor = isCheaper ? 'var(--red)' : 'var(--green)';
-        
-        return `
-            <div class="card" onclick="event.stopPropagation(); showItemInDetail('${item.name}')">
-                <img src="${item.iconLink}">
-                <div style="flex-grow:1; display:flex; flex-direction:column;">
-                    <span style="font-size:0.95rem">${item.name}</span>
-                    <small style="color:var(--tarkov-dim)">Avg: ${(item.avg24hPrice || 0).toLocaleString()} ₽</small>
-                </div>
-                <div style="text-align:right">
-                    <div style="color:var(--green); font-weight:bold;">${(item.lastLowPrice || 0).toLocaleString()} ₽</div>
-                    <span style="color:${trendColor}; font-size:0.8rem">${trendIcon} TREND</span>
-                </div>
-            </div>
-        `;
-    }).join('');
+function calculateProfits(type) {
+    const list = type === 'craft' ? tarkovData.crafts : tarkovData.barters;
+    return list.map(item => {
+        const reward = item.rewardItems[0];
+        if (!reward || !reward.item.lastLowPrice) return null;
+        const cost = item.requiredItems.reduce((sum, req) => sum + ((req.item.lastLowPrice || 0) * req.count), 0);
+        const profit = (reward.item.lastLowPrice * reward.count) - cost;
+        return { 
+            ...item, 
+            profit, 
+            name: reward.item.name, 
+            icon: reward.item.iconLink,
+            location: type === 'craft' ? item.station.name : item.trader.name
+        };
+    }).filter(i => i && i.profit > 5000).sort((a,b) => b.profit - a.profit);
 }
 
-function calculateBarterProfits() {
-    return tarkovData.barters.map(b => {
-        const reward = b.rewardItems[0];
-        const cost = b.requiredItems.reduce((s, r) => s + (r.item.lastLowPrice * r.count), 0);
-        const profit = (reward.item.lastLowPrice * reward.count) - cost;
-        return { ...b, profit, rewardName: reward.item.name, rewardIcon: reward.item.iconLink };
-    }).filter(b => b.profit > 10000).sort((a,b) => b.profit - a.profit);
+function renderCraftSummary() {
+    const container = document.getElementById('craft-summary');
+    if (!container) return;
+    const profits = calculateProfits('craft');
+    // Geändert auf die 20 besten Crafts
+    container.innerHTML = profits.slice(0, 20).map(c => `
+        <div class="card">
+            <img src="${c.icon}">
+            <div style="flex-grow:1; display:flex; flex-direction:column;">
+                <span style="font-size:0.85rem">${c.name}</span>
+                <small style="color:var(--tarkov-dim)">${c.location}</small>
+            </div>
+            <span style="color:var(--green); font-weight:bold;">+${Math.round(c.profit/1000)}k</span>
+        </div>
+    `).join('');
 }
 
 function renderBarterSummary() {
     const container = document.getElementById('barter-summary');
     if (!container) return;
-    const prof = calculateBarterProfits();
-    container.innerHTML = prof.slice(0, 15).map(b => `
+    const profits = calculateProfits('barter');
+    // Geändert auf die 20 besten Barter
+    container.innerHTML = profits.slice(0, 20).map(b => `
         <div class="card">
-            <img src="${b.rewardIcon}">
-            <span style="flex-grow:1">${b.rewardName}</span>
+            <img src="${b.icon}">
+            <div style="flex-grow:1; display:flex; flex-direction:column;">
+                <span style="font-size:0.85rem">${b.name}</span>
+                <small style="color:var(--tarkov-dim)">${b.location}</small>
+            </div>
             <span style="color:var(--green)">+${Math.round(b.profit/1000)}k</span>
         </div>
     `).join('');
@@ -129,87 +132,25 @@ function renderTraderSummary() {
     if (!container) return;
     container.innerHTML = tarkovData.traders.map(t => `
         <div class="card">
-            <span>${t.name}</span>
+            <span style="font-size:0.9rem">${t.name}</span>
             <span class="trader-timer" data-reset="${t.resetTime}" style="color:var(--tarkov-yellow); font-family:monospace;">--:--:--</span>
         </div>
     `).join('');
 }
 
-function showItemInDetail(itemName) {
-    const item = tarkovData.marketItems.find(i => i.name === itemName);
-    if(!item) return;
-    
-    switchView('market');
-    const container = document.getElementById('detail-content');
-    container.innerHTML = `
-        <div class="detail-card">
-            <div class="detail-card-header">
-                <img src="${item.iconLink}" width="64">
-                <div>
-                    <h2>${item.name}</h2>
-                    <p>Current Low: <span style="color:var(--green)">${item.lastLowPrice.toLocaleString()} ₽</span></p>
-                    <p>24h Average: ${item.avg24hPrice.toLocaleString()} ₽</p>
-                </div>
-            </div>
-            <div style="padding:10px; color:var(--tarkov-dim)">
-                Data is synchronized from the PVE market every 60 seconds.
-            </div>
-        </div>
-    `;
-}
-
-function renderDetails(viewId) {
-    const container = document.getElementById('detail-content');
-    if (viewId === 'barter') {
-        const prof = calculateBarterProfits();
-        container.innerHTML = prof.map(b => `
-            <div class="detail-card">
-                <div class="detail-card-header">
-                    <img src="${b.rewardIcon}" width="50">
-                    <div style="flex-grow:1">
-                        <strong>${b.rewardName}</strong><br>
-                        <small>${b.trader.name} (LVL ${b.level})</small>
-                    </div>
-                    <div style="color:var(--green); font-weight:bold;">+${b.profit.toLocaleString()} ₽</div>
-                </div>
-                <div class="required-items">
-                    ${b.requiredItems.map(ri => `
-                        <div class="req-item">
-                            <span>${ri.count}x ${ri.item.name}</span>
-                            <span>${(ri.item.lastLowPrice * ri.count).toLocaleString()} ₽</span>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `).join('');
-    } else if (viewId === 'market') {
-        renderMarketSummary();
-        container.innerHTML = document.getElementById('market-summary').innerHTML;
-    } else {
-        container.innerHTML = document.getElementById(viewId + '-summary').innerHTML;
-    }
-}
-
 function switchView(viewId) {
     const mainView = document.getElementById('main-view');
     const detailView = document.getElementById('detail-view');
-    const selector = document.getElementById('view-selector');
-
     mainView.style.display = viewId === 'main' ? 'block' : 'none';
     detailView.style.display = viewId === 'main' ? 'none' : 'block';
-    selector.value = viewId;
-
+    
     if (viewId !== 'main') {
-        document.getElementById('detail-title').innerText = viewId.toUpperCase() + "_DETAILS";
-        renderDetails(viewId);
+        const content = document.getElementById(viewId + '-summary').innerHTML;
+        document.getElementById('detail-content').innerHTML = content;
     }
 }
 
 function updateDynamicElements() {
-    const now = new Date();
-    if(document.getElementById('clock-1')) document.getElementById('clock-1').innerText = calculateTarkovTime(now, 0);
-    if(document.getElementById('clock-2')) document.getElementById('clock-2').innerText = calculateTarkovTime(now, 12);
-
     document.querySelectorAll('.trader-timer').forEach(el => {
         const diff = new Date(el.dataset.reset) - new Date();
         if (diff < 0) return el.innerText = "RESET";
@@ -218,11 +159,6 @@ function updateDynamicElements() {
         const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
         el.innerText = `${h}:${m}:${s}`;
     });
-}
-
-function calculateTarkovTime(date, hourOffset) {
-    const tarkovMs = (date.getTime() * 7) + (hourOffset * 3600000);
-    return new Date(tarkovMs).toISOString().substr(11, 8);
 }
 
 init();

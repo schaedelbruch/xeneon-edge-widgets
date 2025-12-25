@@ -3,10 +3,6 @@
     src: url('https://fonts.cdnfonts.com/s/14201/Bender.woff') format('woff');
 }
 
-* {
-    box-sizing: border-box;
-}
-
 :root {
     --tarkov-yellow: #ffb400;
     --tarkov-bg: #080808;
@@ -18,6 +14,8 @@
     --red: #f87171;
 }
 
+* { box-sizing: border-box; }
+
 body {
     background: var(--tarkov-bg);
     color: var(--tarkov-text);
@@ -26,7 +24,7 @@ body {
     padding: 0;
     width: 100%;
     height: 100vh;
-    overflow: hidden;
+    overflow: hidden; /* Verhindert das Scrollen der ganzen Seite */
     display: flex;
     flex-direction: column;
 }
@@ -42,35 +40,25 @@ body {
     flex-shrink: 0;
 }
 
-.brand { 
-    cursor: pointer; 
-    font-weight: bold; 
-    letter-spacing: 2px; 
-    font-size: 1.6rem; 
-}
-.brand:hover { color: var(--tarkov-yellow); }
+.header-controls { display: flex; gap: 15px; }
 
-#view-selector {
-    background: #1a1a1a;
+#refresh-btn, #view-selector {
+    background: transparent;
     color: var(--tarkov-yellow);
     border: 1px solid var(--tarkov-yellow);
-    padding: 8px;
+    padding: 8px 15px;
     font-family: 'Bender';
-    font-size: 1.1rem;
+    cursor: pointer;
 }
 
-#view-container {
-    flex-grow: 1;
-    overflow: hidden;
-}
+#view-selector { background: #1a1a1a; }
 
 .grid-layout {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     padding: 20px;
-    height: calc(100vh - 60px); 
-    width: 100%;
+    height: calc(100vh - 60px);
 }
 
 .widget {
@@ -79,133 +67,62 @@ body {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    min-height: 0; 
     height: 100%;
-    box-sizing: border-box;
+    min-height: 0; /* WICHTIG: Erlaubt dem Widget zu schrumpfen, damit Scrollen funktioniert */
     cursor: pointer;
-    transition: border-color 0.2s;
-}
-
-.widget:hover {
-    border-color: var(--tarkov-dim);
 }
 
 .widget-title {
     margin: 0 0 15px 0;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     color: var(--tarkov-yellow);
     border-bottom: 1px solid var(--tarkov-border);
     padding-bottom: 8px;
     flex-shrink: 0;
 }
 
-.scroll-content {
-    overflow-y: auto;
-    flex-grow: 1;
-    min-height: 0;
+.scroll-content { 
+    overflow-y: auto; 
+    flex-grow: 1; 
+    min-height: 0; /* WICHTIG: Aktiviert den Scrollbalken im Container */
 }
 
 .card {
     background: rgba(255,255,255,0.03);
-    margin-bottom: 10px;
-    padding: 12px;
+    margin-bottom: 8px;
+    padding: 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 1.1rem;
     border-left: 3px solid transparent;
-    transition: all 0.2s ease;
+    transition: 0.2s;
 }
 
 .card:hover {
     background: rgba(255, 180, 0, 0.05);
     border-left: 3px solid var(--tarkov-yellow);
-    transform: translateX(5px);
 }
 
-.card img { 
-    width: 42px; 
-    height: 42px; 
-    margin-right: 15px; 
-}
-
-#detail-view {
-    height: calc(100vh - 60px);
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-.detail-container {
-    background: var(--tarkov-card);
-    border: 1px solid var(--tarkov-yellow);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-.detail-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid var(--tarkov-yellow);
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-}
-
-.back-btn {
-    background: var(--tarkov-yellow);
-    color: #000;
-    border: none;
-    padding: 8px 15px;
-    font-family: 'Bender';
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.detail-card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--tarkov-border);
-    margin-bottom: 20px;
-    padding: 15px;
-}
-
-.detail-card-header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    border-bottom: 1px solid var(--tarkov-border);
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-}
-
-.req-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
-    margin-bottom: 5px;
-    padding: 5px;
-    background: rgba(0,0,0,0.2);
-}
-
-.tarkov-clock {
-    font-size: 3.5rem;
-    text-align: center;
-    color: var(--tarkov-yellow);
-    margin: 20px 0;
-    font-family: monospace;
-}
+.card img { width: 38px; height: 38px; margin-right: 12px; }
 
 .status-indicator {
-    padding: 10px;
+    padding: 8px;
     text-align: center;
-    font-size: 1.2rem;
     font-weight: bold;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    border: 1px solid;
 }
 
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+    padding: 4px;
+    background: rgba(255,255,255,0.02);
+}
+
+/* Scrollbar Design */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: #000; }
 ::-webkit-scrollbar-thumb { background: var(--tarkov-yellow); }
