@@ -15,7 +15,6 @@ async function manualRefresh() {
 }
 
 async function fetchAllData() {
-    // Abfrage inklusive Level für Crafts und Barters
     const query = `{
         status { currentStatuses { name status message } }
         traders { name resetTime }
@@ -74,20 +73,19 @@ function renderStatusSummary() {
     if (!container || !tarkovData.status) return;
     container.innerHTML = tarkovData.status.currentStatuses.map(s => `
         <div class="status-item">
-            <span style="color:var(--tarkov-dim)">${s.name.toUpperCase()}</span>
+            <span style="color:var(--tarkov-dim); font-size:0.8rem">${s.name.toUpperCase()}</span>
             <span style="color:${s.status === 0 ? 'var(--green)' : 'var(--red)'}">${s.status === 0 ? 'OK' : 'ERR'}</span>
         </div>
     `).join('');
 }
 
 function renderCraftSummary() {
-    const container = document.getElementById('craft-summary');
     const profits = calculateProfits('craft');
-    container.innerHTML = profits.slice(0, 20).map(c => `
+    document.getElementById('craft-summary').innerHTML = profits.slice(0, 20).map(c => `
         <div class="card">
             <img src="${c.icon}">
             <div style="flex-grow:1; display:flex; flex-direction:column;">
-                <span style="font-size:0.85rem">${c.name}</span>
+                <span>${c.name}</span>
                 <small style="color:var(--tarkov-dim)">${c.location} LVL ${c.level}</small>
             </div>
             <span style="color:var(--green); font-weight:bold;">+${Math.round(c.profit/1000)}k</span>
@@ -96,25 +94,23 @@ function renderCraftSummary() {
 }
 
 function renderBarterSummary() {
-    const container = document.getElementById('barter-summary');
     const profits = calculateProfits('barter');
-    container.innerHTML = profits.slice(0, 20).map(b => `
+    document.getElementById('barter-summary').innerHTML = profits.slice(0, 20).map(b => `
         <div class="card">
             <img src="${b.icon}">
             <div style="flex-grow:1; display:flex; flex-direction:column;">
-                <span style="font-size:0.85rem">${b.name}</span>
+                <span>${b.name}</span>
                 <small style="color:var(--tarkov-dim)">${b.location} LVL ${b.level}</small>
             </div>
-            <span style="color:var(--green)">+${Math.round(b.profit/1000)}k</span>
+            <span style="color:var(--green); font-weight:bold;">+${Math.round(b.profit/1000)}k</span>
         </div>
     `).join('');
 }
 
 function renderTraderSummary() {
-    const container = document.getElementById('trader-summary');
-    container.innerHTML = tarkovData.traders.map(t => `
+    document.getElementById('trader-summary').innerHTML = tarkovData.traders.map(t => `
         <div class="card">
-            <span style="font-size:0.9rem">${t.name}</span>
+            <span>${t.name}</span>
             <span class="trader-timer" data-reset="${t.resetTime}" style="color:var(--tarkov-yellow); font-family:monospace;">--:--:--</span>
         </div>
     `).join('');
@@ -127,19 +123,18 @@ function renderDetails(viewId) {
         container.innerHTML = profits.slice(0, 20).map(item => `
             <div class="detail-card">
                 <div class="detail-card-header">
-                    <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
                         <img src="${item.icon}" width="40">
                         <div>
-                            <strong>${item.name}</strong><br>
-                            <small style="color:var(--tarkov-yellow)">${item.location} (LEVEL ${item.level})</small>
+                            <strong style="font-size:1.1rem">${item.name}</strong><br>
+                            <small style="color:var(--tarkov-yellow)">${item.location} (LVL ${item.level})</small>
                         </div>
                     </div>
-                    <div style="color:var(--green); font-weight:bold;">+${item.profit.toLocaleString()} ₽</div>
+                    <div style="color:var(--green); font-weight:bold; font-size:1.2rem;">+${item.profit.toLocaleString()} ₽</div>
                 </div>
                 <div class="req-item-list">
-                    <strong>REQUIREMENTS:</strong>
                     ${item.requiredItems.map(ri => `
-                        <div style="display:flex; justify-content:space-between; margin-top:3px;">
+                        <div class="req-item-row">
                             <span>${ri.count}x ${ri.item.name}</span>
                             <span>${((ri.item.lastLowPrice || 0) * ri.count).toLocaleString()} ₽</span>
                         </div>
@@ -155,8 +150,13 @@ function renderDetails(viewId) {
 function switchView(viewId) {
     const mainView = document.getElementById('main-view');
     const detailView = document.getElementById('detail-view');
+    const selector = document.getElementById('view-selector');
+    
     mainView.style.display = viewId === 'main' ? 'block' : 'none';
-    detailView.style.display = viewId === 'main' ? 'none' : 'block';
+    // Wichtig: Detailansicht nutzt flex für die Scroll-Eigenschaften
+    detailView.style.display = viewId === 'main' ? 'none' : 'flex';
+    selector.value = viewId;
+
     if (viewId !== 'main') {
         document.getElementById('detail-title').innerText = viewId.toUpperCase() + "_ANALYSIS";
         renderDetails(viewId);
