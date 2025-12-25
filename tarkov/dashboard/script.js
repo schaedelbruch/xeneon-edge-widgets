@@ -24,7 +24,7 @@ async function fetchAllData() {
         status { currentStatuses { status } }
         traders { name resetTime }
         marketItems: items(gameMode: pve, names: ${JSON.stringify(MARKET_ITEM_NAMES)}) {
-            name lastLowPrice iconLink
+            name lastLowPrice avg24hPrice iconLink
         }
         barters(gameMode: pve) {
             trader { name }
@@ -51,7 +51,6 @@ async function fetchAllData() {
         
         renderAll();
 
-        // Falls Detailansicht offen, diese ebenfalls aktualisieren
         const selector = document.getElementById('view-selector');
         if (selector.value !== 'main') renderDetails(selector.value);
         
@@ -81,13 +80,26 @@ function renderStatusSummary() {
 function renderMarketSummary() {
     const container = document.getElementById('market-summary');
     if (!container) return;
-    container.innerHTML = tarkovData.marketItems.map(item => `
-        <div class="card">
-            <img src="${item.iconLink}">
-            <span style="flex-grow:1">${item.name}</span>
-            <span style="color:var(--green); font-weight:bold;">${(item.lastLowPrice || 0).toLocaleString()} ₽</span>
-        </div>
-    `).join('');
+    
+    container.innerHTML = tarkovData.marketItems.map(item => {
+        const isCheaper = item.lastLowPrice < item.avg24hPrice;
+        const trendIcon = isCheaper ? '▼' : '▲';
+        const trendColor = isCheaper ? 'var(--red)' : 'var(--green)';
+        
+        return `
+            <div class="card" onclick="event.stopPropagation(); showItemInDetail('${item.name}')">
+                <img src="${item.iconLink}">
+                <div style="flex-grow:1; display:flex; flex-direction:column;">
+                    <span style="font-size:0.95rem">${item.name}</span>
+                    <small style="color:var(--tarkov-dim)">Avg: ${(item.avg24hPrice || 0).toLocaleString()} ₽</small>
+                </div>
+                <div style="text-align:right">
+                    <div style="color:var(--green); font-weight:bold;">${(item.lastLowPrice || 0).toLocaleString()} ₽</div>
+                    <span style="color:${trendColor}; font-size:0.8rem">${trendIcon} TREND</span>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 function calculateBarterProfits() {
@@ -123,6 +135,29 @@ function renderTraderSummary() {
     `).join('');
 }
 
+function showItemInDetail(itemName) {
+    const item = tarkovData.marketItems.find(i => i.name === itemName);
+    if(!item) return;
+    
+    switchView('market');
+    const container = document.getElementById('detail-content');
+    container.innerHTML = `
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <img src="${item.iconLink}" width="64">
+                <div>
+                    <h2>${item.name}</h2>
+                    <p>Current Low: <span style="color:var(--green)">${item.lastLowPrice.toLocaleString()} ₽</span></p>
+                    <p>24h Average: ${item.avg24hPrice.toLocaleString()} ₽</p>
+                </div>
+            </div>
+            <div style="padding:10px; color:var(--tarkov-dim)">
+                Data is synchronized from the PVE market every 60 seconds.
+            </div>
+        </div>
+    `;
+}
+
 function renderDetails(viewId) {
     const container = document.getElementById('detail-content');
     if (viewId === 'barter') {
@@ -147,6 +182,9 @@ function renderDetails(viewId) {
                 </div>
             </div>
         `).join('');
+    } else if (viewId === 'market') {
+        renderMarketSummary();
+        container.innerHTML = document.getElementById('market-summary').innerHTML;
     } else {
         container.innerHTML = document.getElementById(viewId + '-summary').innerHTML;
     }

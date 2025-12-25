@@ -79,6 +79,11 @@ body {
     height: 100%;
     box-sizing: border-box;
     cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.widget:hover {
+    border-color: var(--tarkov-dim);
 }
 
 .widget-title {
@@ -96,7 +101,6 @@ body {
     min-height: 0;
 }
 
-/* Karten-Styling */
 .card {
     background: rgba(255,255,255,0.03);
     margin-bottom: 10px;
@@ -105,6 +109,14 @@ body {
     align-items: center;
     justify-content: space-between;
     font-size: 1.1rem;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.card:hover {
+    background: rgba(255, 180, 0, 0.05);
+    border-left: 3px solid var(--tarkov-yellow);
+    transform: translateX(5px);
 }
 
 .card img { 
@@ -113,7 +125,6 @@ body {
     margin-right: 15px; 
 }
 
-/* Detail-View Styling */
 #detail-view {
     height: calc(100vh - 60px);
     padding: 20px;
@@ -175,7 +186,6 @@ body {
     background: rgba(0,0,0,0.2);
 }
 
-/* Tarkov Uhr & Status */
 .tarkov-clock {
     font-size: 3.5rem;
     text-align: center;
@@ -192,5 +202,6 @@ body {
     margin-bottom: 20px;
 }
 
-::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #000; }
 ::-webkit-scrollbar-thumb { background: var(--tarkov-yellow); }
