@@ -1,0 +1,73 @@
+:root {
+    --bg-color: #0c0c0c;
+    --card-bg: #1a1a1a;
+    --border-color: #333;
+    --text-main: #e0e0e0;
+    --accent: #ffb400; /* Tarkov Gelb/Orange */
+    --green: #4caf50;
+    --red: #f44336;
+}
+
+body {
+    margin: 0;
+    padding: 10px;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden; /* Verhindert Scrollen bei 720px Höhe */
+    height: 700px; /* Leicht unter 720px für Iframe-Puffer */
+}
+
+.dashboard-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    height: 100%;
+}
+
+.column {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 5px;
+    margin-top: 0;
+}
+
+.list-container {
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.card {
+    background: var(--card-bg);
+    padding: 10px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--accent);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.price-up { color: var(--green); }
+.price-down { color: var(--red); }
+
+input#ammo-search {
+    width: 90%;
+    background: #222;
+    border: 1px solid var(--border-color);
+    color: white;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+/* Scrollbar Style */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: var(--accent); }
