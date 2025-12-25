@@ -73,8 +73,13 @@ function renderStatusSummary() {
     if (!container || !tarkovData.status) return;
     
     container.innerHTML = tarkovData.status.currentStatuses.map(s => {
-        const statusClass = s.status === 0 ? 'status-ok' : 'status-err';
-        const statusLabel = s.status === 0 ? 'OPERATIONAL' : 'ERROR';
+        // Die CSS-Klasse entspricht direkt dem numerischen Status (status-0, status-1, etc.)
+        const statusClass = `status-${s.status}`;
+        
+        let statusLabel = 'OFFLINE';
+        if (s.status === 3) statusLabel = 'OPERATIONAL';
+        else if (s.status === 2) statusLabel = 'DEGRADED';
+        else if (s.status === 1) statusLabel = 'UNSTABLE';
         
         return `
             <div class="status-item">
@@ -132,18 +137,27 @@ function renderDetails(viewId) {
         container.innerHTML = `
             <div style="padding:20px; border:1px solid var(--tarkov-border); background:rgba(0,0,0,0.3);">
                 <h3 style="color:var(--tarkov-yellow); margin-top:0;">SYSTEM_DIAGNOSTICS_REPORT</h3>
-                ${tarkovData.status.currentStatuses.map(s => `
-                    <div style="margin-bottom:20px; padding-bottom:10px; border-bottom:1px solid #222;">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <strong style="font-size:1.2rem;">${s.name}</strong>
-                            <span class="status-indicator ${s.status === 0 ? 'status-ok' : 'status-err'}"></span>
+                ${tarkovData.status.currentStatuses.map(s => {
+                    let detailedStatus = 'OFFLINE';
+                    let textColor = 'var(--red)';
+                    
+                    if (s.status === 3) { detailedStatus = 'ONLINE'; textColor = 'var(--green)'; }
+                    else if (s.status === 2) { detailedStatus = 'DEGRADED'; textColor = 'var(--tarkov-yellow)'; }
+                    else if (s.status === 1) { detailedStatus = 'UNSTABLE'; textColor = 'var(--orange)'; }
+
+                    return `
+                        <div style="margin-bottom:20px; padding-bottom:10px; border-bottom:1px solid #222;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <strong style="font-size:1.2rem;">${s.name}</strong>
+                                <span class="status-indicator status-${s.status}"></span>
+                            </div>
+                            <p style="color:${textColor}; margin:5px 0;">
+                                STATUS: ${detailedStatus} (LVL ${s.status})
+                            </p>
+                            ${s.message ? `<small style="color:var(--tarkov-dim)">LOG: ${s.message}</small>` : ''}
                         </div>
-                        <p style="color:${s.status === 0 ? 'var(--green)' : 'var(--red)'}; margin:5px 0;">
-                            STATUS: ${s.status === 0 ? 'ONLINE' : 'OFFLINE'}
-                        </p>
-                        ${s.message ? `<small style="color:var(--tarkov-dim)">LOG: ${s.message}</small>` : ''}
-                    </div>
-                `).join('')}
+                    `;
+                }).join('')}
             </div>
         `;
     } else if (viewId === 'craft' || viewId === 'barter') {

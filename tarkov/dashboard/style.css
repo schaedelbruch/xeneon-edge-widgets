@@ -11,6 +11,7 @@
     --tarkov-text: #dbdbdb;
     --tarkov-dim: #7a7a7a;
     --green: #4ade80;
+    --orange: #f97316; /* Neu: Für Status 1 */
     --red: #f87171;
 }
 
@@ -90,7 +91,7 @@ body {
 
 .scroll-content { overflow-y: auto; flex-grow: 1; min-height: 0; }
 
-/* --- Status Styles --- */
+/* --- Status Styles (Eigene Farben pro Status) --- */
 .status-item {
     display: flex;
     justify-content: space-between;
@@ -108,8 +109,14 @@ body {
     border-radius: 50%;
 }
 
-.status-ok { background-color: var(--green); color: var(--green); animation: status-pulse 2s infinite; }
-.status-err { background-color: var(--red); color: var(--red); animation: status-pulse 1s infinite; }
+/* Status 3: Operational */
+.status-3 { background-color: var(--green); color: var(--green); animation: status-pulse 2s infinite; }
+/* Status 2: Degraded */
+.status-2 { background-color: var(--tarkov-yellow); color: var(--tarkov-yellow); animation: status-pulse 2s infinite; }
+/* Status 1: Unstable */
+.status-1 { background-color: var(--orange); color: var(--orange); animation: status-pulse 1.5s infinite; }
+/* Status 0: Offline */
+.status-0 { background-color: var(--red); color: var(--red); animation: status-pulse 1s infinite; }
 
 /* --- Dropdown Styles --- */
 #view-selector {
