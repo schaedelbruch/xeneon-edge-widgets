@@ -1,84 +1,102 @@
+@font-face {
+    font-family: 'Bender';
+    src: url('https://fonts.cdnfonts.com/s/14201/Bender.woff') format('woff');
+}
+
 :root {
-    --bg-color: #0c0c0c;
-    --card-bg: #1a1a1a;
-    --border-color: #333;
-    --text-main: #e0e0e0;
-    --accent: #ffb400; /* Tarkov Gelb/Orange */
-    --green: #4caf50;
-    --red: #f44336;
+    --tarkov-yellow: #ffb400;
+    --tarkov-bg: #080808;
+    --tarkov-card: #121212;
+    --tarkov-border: #2a2a2a;
+    --tarkov-text: #dbdbdb;
+    --tarkov-dim: #7a7a7a;
 }
 
 body {
+    background: var(--tarkov-bg);
+    color: var(--tarkov-text);
+    font-family: 'Bender', sans-serif;
     margin: 0;
-    padding: 10px;
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow: hidden; /* Verhindert Scrollen des gesamten Fensters */
-    height: 700px;
-}
-
-.dashboard-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    height: 100%;
-}
-
-.column {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border-color);
-    padding: 8px;
+    height: 720px;
+    width: 100%;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    min-width: 0; /* Verhindert das Ausbrechen von Inhalten */
 }
 
-.section-title {
-    font-size: 0.95rem;
-    text-transform: uppercase;
-    border-bottom: 2px solid var(--accent);
-    padding-bottom: 5px;
-    margin-top: 0;
-    margin-bottom: 10px;
+/* Scanline Effekt für Immersion */
+.overlay-scanlines {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+    z-index: 100;
 }
 
-.list-container {
-    overflow-y: auto;
-    flex-grow: 1;
-}
-
-.card {
-    background: var(--card-bg);
-    padding: 6px 8px;
-    margin-bottom: 6px;
-    border-left: 3px solid var(--accent);
+.main-header {
+    background: #000;
+    padding: 10px;
+    border-bottom: 2px solid var(--tarkov-yellow);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.85rem;
 }
 
-.card img {
-    width: 24px;
-    height: 24px;
-    margin-right: 8px;
-    object-fit: contain;
+#view-selector {
+    background: #1a1a1a;
+    color: var(--tarkov-yellow);
+    border: 1px solid var(--tarkov-yellow);
+    padding: 2px 5px;
+    font-family: 'Bender';
 }
 
-.price-up { color: var(--green); }
-.price-down { color: var(--red); }
-
-input#ammo-search {
-    width: calc(100% - 12px);
-    background: #222;
-    border: 1px solid var(--border-color);
-    color: white;
-    padding: 5px;
-    margin-bottom: 8px;
-    font-size: 0.8rem;
+.scroll-container {
+    height: 640px; /* Abzüglich Header */
+    overflow-y: auto;
+    padding: 10px;
 }
 
 /* Scrollbar Style */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-thumb { background: var(--accent); }
+.scroll-container::-webkit-scrollbar { width: 4px; }
+.scroll-container::-webkit-scrollbar-thumb { background: var(--tarkov-yellow); }
+
+.view { display: none; }
+.view.active { display: block; }
+
+.grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 10px;
+}
+
+.widget {
+    background: var(--tarkov-card);
+    border: 1px solid var(--tarkov-border);
+    padding: 8px;
+    cursor: pointer;
+    height: 320px;
+    overflow: hidden;
+}
+
+.widget:hover { border-color: var(--tarkov-yellow); }
+
+.widget-title {
+    margin: 0 0 10px 0;
+    font-size: 0.8rem;
+    color: var(--tarkov-yellow);
+    letter-spacing: 2px;
+}
+
+.card {
+    background: rgba(255,255,255,0.03);
+    margin-bottom: 5px;
+    padding: 5px;
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.countdown { font-family: monospace; color: var(--tarkov-yellow); }
