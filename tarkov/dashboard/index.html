@@ -3,37 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tarkov Xeneon Dashboard</title>
+    <title>Tarkov Edge OS</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="dashboard-container">
-        <section class="column" id="status-column">
-            <h2 class="section-title">Status & Trader</h2>
-            <div id="server-status" class="card">Lade Server-Status...</div>
-            <div id="trader-list" class="list-container">
-                </div>
-        </section>
+    <div class="overlay-scanlines"></div>
+    
+    <header class="main-header">
+        <div class="brand">XENEON // TARKOV_OS</div>
+        <select id="view-selector" onchange="switchView(this.value)">
+            <option value="main">ÜBERSICHT</option>
+            <option value="status">TRADER & STATUS</option>
+            <option value="market">MARKT PREISE</option>
+            <option value="ammo">MUNITION</option>
+            <option value="barter">BARTER SNIPER</option>
+        </select>
+    </header>
 
-        <section class="column" id="market-column">
-            <h2 class="section-title">Markt-Preise (Live)</h2>
-            <div id="price-ticker" class="list-container">
-                </div>
-        </section>
+    <main id="view-container">
+        <div id="main-view" class="view active">
+            <div class="grid-layout">
+                <section class="widget" onclick="switchView('status')">
+                    <h3 class="widget-title">STATUS</h3>
+                    <div id="status-summary"></div>
+                </section>
+                <section class="widget" onclick="switchView('market')">
+                    <h3 class="widget-title">MARKET</h3>
+                    <div id="market-summary"></div>
+                </section>
+                <section class="widget" onclick="switchView('ammo')">
+                    <h3 class="widget-title">AMMO</h3>
+                    <div id="ammo-summary"></div>
+                </section>
+                <section class="widget" onclick="switchView('barter')">
+                    <h3 class="widget-title">BARTER</h3>
+                    <div id="barter-summary"></div>
+                </section>
+            </div>
+        </div>
 
-        <section class="column" id="ammo-column">
-            <h2 class="section-title">Ammo Quick-Check</h2>
-            <input type="text" id="ammo-search" placeholder="Munition suchen..." onkeyup="filterAmmo()">
-            <div id="ammo-table" class="list-container">
+        <div id="detail-view" class="view">
+            <h2 id="detail-title">DETAILS</h2>
+            <div id="detail-content" class="scroll-container">
                 </div>
-        </section>
+        </div>
+    </main>
 
-        <section class="column" id="hideout-column">
-            <h2 class="section-title">Top Hideout Crafts</h2>
-            <div id="craft-list" class="list-container">
-                </div>
-        </section>
-    </div>
     <script src="script.js"></script>
 </body>
 </html>
