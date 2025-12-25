@@ -14,31 +14,33 @@ body {
     background-color: var(--bg-color);
     color: var(--text-main);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow: hidden; /* Verhindert Scrollen bei 720px Höhe */
-    height: 700px; /* Leicht unter 720px für Iframe-Puffer */
+    overflow: hidden; /* Verhindert Scrollen des gesamten Fensters */
+    height: 700px;
 }
 
 .dashboard-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
+    gap: 12px;
     height: 100%;
 }
 
 .column {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--border-color);
-    padding: 10px;
+    padding: 8px;
     display: flex;
     flex-direction: column;
+    min-width: 0; /* Verhindert das Ausbrechen von Inhalten */
 }
 
 .section-title {
-    font-size: 1.2rem;
+    font-size: 0.95rem;
     text-transform: uppercase;
     border-bottom: 2px solid var(--accent);
     padding-bottom: 5px;
     margin-top: 0;
+    margin-bottom: 10px;
 }
 
 .list-container {
@@ -48,26 +50,35 @@ body {
 
 .card {
     background: var(--card-bg);
-    padding: 10px;
-    margin-bottom: 8px;
+    padding: 6px 8px;
+    margin-bottom: 6px;
     border-left: 3px solid var(--accent);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-size: 0.85rem;
+}
+
+.card img {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    object-fit: contain;
 }
 
 .price-up { color: var(--green); }
 .price-down { color: var(--red); }
 
 input#ammo-search {
-    width: 90%;
+    width: calc(100% - 12px);
     background: #222;
     border: 1px solid var(--border-color);
     color: white;
     padding: 5px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
 }
 
 /* Scrollbar Style */
-::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-thumb { background: var(--accent); }
