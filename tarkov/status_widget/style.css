@@ -1,0 +1,29 @@
+body {
+    background-color: transparent; /* Ideal für Overlays */
+    margin: 0;
+    font-family: 'Bender', 'Arial', sans-serif; /* Bender ist die Tarkov-Schrift */
+    color: #e2e2e2;
+}
+
+.container {
+    padding: 10px;
+    border-left: 3px solid #1e1e1e;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.label {
+    font-size: 10px;
+    color: #9a9a9a;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+#status-display {
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-online { color: #4ade80; }
+.status-issue { color: #facc15; }
+.status-offline { color: #f87171; }
